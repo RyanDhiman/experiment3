@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Library Management System</title>
+</head>
+<body>
+
+<h1>Library Management System</h1>
+
+<input type="text" id="search" placeholder="Search books...">
+<br><br>
+
+<input type="text" id="title" placeholder="Book Title">
+<input type="text" id="author" placeholder="Author">
+<button onclick="addBook()">Add Book</button>
+
+<h2>Book List</h2>
+<ul id="bookList"></ul>
+
+<script>
+    async function fetchBooks() {
+        const res = await fetch('/books');
+        const books = await res.json();
+
+        const list = document.getElementById("bookList");
+        list.innerHTML = "";
+
+        books.forEach(book => {
+            const li = document.createElement("li");
+            li.innerHTML = `${book.title} by ${book.author}
+            <button onclick="deleteBook(${book.id})">Remove</button>`;
+            list.appendChild(li);
+        });
+    }
+
+    async function addBook() {
+        const title = document.getElementById("title").value;
+        const author = document.getElementById("author").value;
+
+        await fetch('/books', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, author })
+        });
+
+        fetchBooks();
+    }
+
+    async function deleteBook(id) {
+        await fetch(`/books/${id}`, {
+            method: 'DELETE'
+        });
+        fetchBooks();
+    }
+
+    fetchBooks();
+</script>
+
+</body>
+</html>
